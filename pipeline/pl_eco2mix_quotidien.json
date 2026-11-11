@@ -1,0 +1,100 @@
+{
+    "name": "pl_eco2mix_quotidien",
+    "objectId": "7fd9a906-69c4-4d53-a489-331fe855166f",
+    "properties": {
+        "activities": [
+            {
+                "name": "Bronze",
+                "type": "TridentNotebook",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 300,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "notebookId": "6c737349-4309-4c89-97e8-864b1d58ae87",
+                    "workspaceId": "9282b532-4ba3-4181-a397-91d5ea9fd3be",
+                    "sessionTag": "eco2mix"
+                }
+            },
+            {
+                "name": "Silver",
+                "type": "TridentNotebook",
+                "dependsOn": [
+                    {
+                        "activity": "Bronze",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 300,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "notebookId": "fec50217-a187-49bd-814e-463f00bd8d3e",
+                    "workspaceId": "9282b532-4ba3-4181-a397-91d5ea9fd3be",
+                    "sessionTag": "eco2mix"
+                }
+            },
+            {
+                "name": "Sync SQL",
+                "type": "Wait",
+                "dependsOn": [
+                    {
+                        "activity": "Silver",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "typeProperties": {
+                    "waitTimeInSeconds": 60
+                }
+            },
+            {
+                "name": "Gold",
+                "type": "SqlServerStoredProcedure",
+                "dependsOn": [
+                    {
+                        "activity": "Sync SQL",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "storedProcedureName": "[gold].[sp_rafraichir]"
+                },
+                "linkedService": {
+                    "name": "wh_eco2mix",
+                    "properties": {
+                        "annotations": [],
+                        "type": "DataWarehouse",
+                        "typeProperties": {
+                            "endpoint": "qyvnoo7kvctejkez6pgmx3pqe4-gk2yfevdjoaudi4xshk6vh6txy.datawarehouse.fabric.microsoft.com",
+                            "artifactId": "4dc4e4c8-7662-4895-88c8-e81813d9e9b6",
+                            "workspaceId": "9282b532-4ba3-4181-a397-91d5ea9fd3be"
+                        }
+                    }
+                }
+            }
+        ],
+        "lastModifiedByObjectId": "2e7a5f7a-906e-412f-af22-4ea714dd335b",
+        "lastPublishTime": "2026-11-11T02:04:56Z"
+    }
+}
